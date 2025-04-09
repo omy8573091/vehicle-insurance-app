@@ -1,0 +1,127 @@
+[tool.poetry]
+name = "vehicle-insurance-app"
+version = "0.1.0"
+description = "This is vehicle insurance application for visualizing and compare yearly or motnhly with past data using machine leaning"
+authors = ["Om Prakash Sharma"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.12"
+alembic = "^1.15.2"
+pydantic = "^2.11.3"
+graphene-sqlalchemy = "^2.3.0"
+python-dotenv = "^1.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
+pytest-asyncio = "^0.26.0"
+httpx = "^0.28.1"
+pytest-mock = "^3.14.0"
+pytest-env = "^1.1.5"
+pre-commit = "^4.2.0"
+mypy = "^1.15.0"
+isort = "^6.0.1"
+flake8 = "^7.2.0"
+black = "^25.1.0"
+pylint = "^3.3.6"
+bandit = "^1.8.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["app"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip = ["migrations"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"
+max-complexity = 18
+select = [
+    "B",    # bugbear
+    "C",    # complexity
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "ANN",  # annotations
+    "D",    # docstrings
+    "N",    # naming
+]
+per-file-ignores = [
+    "tests/*:ANN101,S101,D103",
+    "app/migrations/*:ALL",
+]
+
+[tool.pylint.MASTER]
+ignore-patterns = "^migrations"
+disable = [
+    "missing-docstring",
+    "too-few-public-methods",
+    "fixme",
+    "import-error",
+]
+enable = [
+    "useless-suppression",
+    "wrong-import-order",
+    "unused-import",
+    "unused-variable",
+    "unused-argument",
+    "redefined-outer-name",
+    "redefined-builtin",
+    "bad-whitespace",
+    "trailing-whitespace",
+    "bad-continuation",
+    "superfluous-parens",
+    "unnecessary-semicolon",
+    "multiple-statements",
+    "wrong-import-position",
+    "unused-wildcard-import",
+    "wildcard-import",
+    "undefined-variable",
+    "no-else-return",
+    "no-else-raise",
+    "no-else-continue",
+    "no-else-break",
+    "comparison-with-itself",
+    "comparison-of-constants",
+    "comparison-with-callable",
+    "unbalanced-tuple-unpacking",
+    "unpacking-non-sequence",
+    "unnecessary-pass",
+    "useless-return",
+    "useless-import-alias",
+    "unnecessary-comprehension",
+    "unnecessary-lambda",
+    "unnecessary-dict-index-lookup",
+    "unnecessary-list-index-lookup",
+    "unnecessary-list-cast",
+    "unnecessary-dict-cast",
+    "unnecessary-set-cast",
+    "unnecessary-lambda-assignment",
+    "unnecessary-ellipsis",
+    "unnecessary-parentheses",
+    "unnecessary-semicolon",
+    "unnecessary-pass"
+]

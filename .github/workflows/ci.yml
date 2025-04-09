@@ -1,0 +1,101 @@
+name: CI/CD Pipeline
+
+on:
+  # Trigger on PRs to protected branches and pushes to feature branches
+  pull_request:
+    branches: [ "dev", "qa", "main" ]
+  push:
+    branches: [ "feature/**", "dev", "qa", "main" ]
+
+jobs:
+  # Continuous Integration (runs on PRs and pushes)
+  test-and-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov safety bandit semgrep
+        
+    - name: Run tests
+      run: |
+        pytest --cov=./ --cov-report=xml
+        
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      
+    - name: Security check (dependencies)
+      run: safety check --full-report
+      
+    - name: Security check (static code analysis)
+      run: bandit -r .
+      
+    - name: Advanced static analysis
+      run: semgrep --config=auto --error
+
+  # Continuous Deployment (only runs on pushes to dev/qa/main)
+  deploy:
+    needs: test-and-scan
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.ref_name }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Build Docker image
+      run: docker build -t fastapi-app:${{ github.ref_name }} .
+      
+    - name: Login to Docker Hub (production only)
+      if: github.ref == 'refs/heads/main'
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        
+    - name: Push to Docker Hub (production only)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker tag fastapi-app:${{ github.ref_name }} ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:${{ github.ref_name }}
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:${{ github.ref_name }}
+        
+    - name: Deploy to Dev
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        # Your dev deployment commands
+        echo "Deploying to dev environment"
+        # Example: kubectl apply -f k8s/dev.yaml
+        
+    - name: Deploy to QA
+      if: github.ref == 'refs/heads/qa'
+      run: |
+        # Your qa deployment commands
+        echo "Deploying to qa environment"
+        # Example: kubectl apply -f k8s/qa.yaml
+        
+    - name: Deploy to Production
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Your production deployment commands
+        echo "Deploying to production environment"
+        # Example: kubectl apply -f k8s/prod.yaml

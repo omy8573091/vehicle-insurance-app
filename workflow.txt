@@ -1,0 +1,4 @@
+1. Create repo in github vehicle-insurance-app with README.md, .gitignore and LICENSE.
+2. Clone the created repo in your local and create required folders (vehicle_insurance_app, test, others), create main.py, __init__.py.
+3. Setup Poetry with python 3.12.6, install all dependency using poetry commands and activate the environment.
+4. 
